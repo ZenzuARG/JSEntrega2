@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulador de Rutina de Entrenamiento</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Rutina de Entrenamiento</h1>
+  </header>
+
+  <main>
+    <!-- Formulario para agregar ejercicio -->
+    <section class="form-section">
+      <h2>Agregar Ejercicio</h2>
+      <form id="exercise-form">
+        <label>
+          Nombre:
+          <input type="text" id="name" required>
+        </label>
+        <label>
+          Series:
+          <input type="number" id="sets" min="1" required>
+        </label>
+        <label>
+          Repeticiones:
+          <input type="number" id="reps" min="1" required>
+        </label>
+        <button type="submit">Añadir</button>
+      </form>
+    </section>
+
+    <!-- Lista de ejercicios -->
+    <section class="list-section">
+      <h2>Tu Rutina</h2>
+      <ul id="exercise-list"></ul>
+      <button id="clear-all">Vaciar Rutina</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Zuliani</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
