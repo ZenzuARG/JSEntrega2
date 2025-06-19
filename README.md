@@ -15,9 +15,8 @@ Proyecto de curso que genera una rutina de ejercicios diaria personalizada segú
 ├── css/
 │   └── styles.css       # Estilos Dark Mode y diseño
 ├── js/
-│   └── script.js        # Lógica de generación e inyección de rutina
-└── data/                # (Opcional) JSON con ejercicios
-    └── ejercicios.json
+    └── script.js        # Lógica de generación e inyección de rutina
+
 ```
 
 ## Tecnologías
