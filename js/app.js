@@ -1,73 +1,78 @@
-// ----- 1. Datos y Local Storage -----
-const STORAGE_KEY = 'rutinaEntrenamiento';
-let rutina = [];
-
-// Cargar desde storage al iniciar
 document.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    rutina = JSON.parse(saved);
-  }
-  renderRutina();
+  const form = document.getElementById('datosUsuario');
+  const contenedor = document.getElementById('rutinaResultante');
+
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+
+    // Leer datos
+    const datos = {
+      peso: +form.peso.value,
+      altura: +form.altura.value,
+      edad: +form.edad.value,
+      actividad: form.actividad.value,
+      series: +form.series.value,
+      repeticiones: +form.repeticiones.value,
+    };
+
+    // Guardar en localStorage
+    localStorage.setItem('usuarioDatos', JSON.stringify(datos));
+
+    // Generar y mostrar rutina
+    const rutina = generarRutina(datos);
+    mostrarRutina(rutina, contenedor);
+  });
 });
 
-// ----- 2. Selección de elementos DOM -----
-const form = document.getElementById('exercise-form');
-const listEl = document.getElementById('exercise-list');
-const clearBtn = document.getElementById('clear-all');
+// Mejora de la lógica de generación
+function generarRutina({ actividad, series, repeticiones, peso, edad }) {
+  // Map de ejercicios con dificultad según edad o peso
+  const base = {
+    calistenia: ['Flexiones', 'Sentadillas', 'Fondos'],
+    spinning: ['Calentamiento', 'Intervalos', 'Enfriamiento'],
+    weightlifting: ['Press de Banca', 'Peso Muerto', 'Sentadilla con Barra'],
+  };
+  
+  // Ajustar repeticiones según edad/peso (ejemplo simple)
+  const factorEdad = edad > 50 ? 0.8 : 1;
+  const factorPeso = peso > 80 ? 1.1 : 1;
 
-// ----- 3. Eventos -----
-
-// 3.1 Al enviar el formulario: agregar ejercicio
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  const name = document.getElementById('name').value.trim();
-  const sets = parseInt(document.getElementById('sets').value, 10);
-  const reps = parseInt(document.getElementById('reps').value, 10);
-  if (!name || sets < 1 || reps < 1) return;
-
-  // Crear objeto ejercicio
-  const ejercicio = { id: Date.now(), name, sets, reps };
-  rutina.push(ejercicio);
-  saveAndRender();
-
-  form.reset();
-});
-
-// 3.2 Al hacer click en “Eliminar” de un ejercicio
-listEl.addEventListener('click', e => {
-  if (e.target.tagName === 'BUTTON' && e.target.dataset.id) {
-    const id = Number(e.target.dataset.id);
-    rutina = rutina.filter(ex => ex.id !== id);
-    saveAndRender();
-  }
-});
-
-// 3.3 Vaciar toda la rutina
-clearBtn.addEventListener('click', () => {
-  rutina = [];
-  saveAndRender();
-});
-
-// ----- 4. Funciones de lógica -----
-
-function saveAndRender() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(rutina));
-  renderRutina();
+  return base[actividad].map(nombre => ({
+    nombre,
+    series,
+    repeticiones: Math.round(repeticiones * factorEdad * factorPeso),
+    descripcion: obtenerDescripcion(nombre, actividad)
+  }));
 }
 
-function renderRutina() {
-  listEl.innerHTML = '';
-  if (rutina.length === 0) {
-    listEl.innerHTML = '<li>No hay ejercicios agregados.</li>';
-    return;
-  }
-  rutina.forEach(ex => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <span>${ex.name} — ${ex.sets} × ${ex.reps}</span>
-      <button data-id="${ex.id}">X</button>
+// Descripciones más ricas
+function obtenerDescripcion(ejercicio, actividad) {
+  const desc = {
+    Flexiones: 'Empuja tu cuerpo hacia arriba con tus brazos, mantén el core firme.',
+    Sentadillas: 'Baja flexionando rodillas, mantén la espalda recta y vuelve a subir.',
+    Fondos: 'Apoya las manos en un banco y baja el cuerpo flexionando codos.',
+    Calentamiento: 'Pedalea a ritmo suave para elevar gradualmente tu frecuencia cardíaca.',
+    Intervalos: 'Alterna entre alta y baja intensidad para mejorar tu resistencia.',
+    Enfriamiento: 'Reduce el ritmo para normalizar tu pulso y estirar ligeramente.',
+    'Press de Banca': 'Empuja la barra hacia arriba desde el pecho, controla el movimiento.',
+    'Peso Muerto': 'Levanta la barra desde el suelo con la espalda recta y piernas firmes.',
+    'Sentadilla con Barra': 'Coloca la barra en la espalda alta, baja con rodillas alineadas.'
+  };
+  return desc[ejercicio] || `Ejercicio de ${actividad}: ${ejercicio}.`;
+}
+
+// Inyecta la rutina en el DOM
+function mostrarRutina(rutina, contenedor) {
+  contenedor.innerHTML = '';
+  rutina.forEach(e => {
+    const card = document.createElement('div');
+    card.className = 'ejercicio-card';
+    card.innerHTML = `
+      <h3>${e.nombre}</h3>
+      <p><strong>Series:</strong> ${e.series}</p>
+      <p><strong>Repeticiones:</strong> ${e.repeticiones}</p>
+      <p>${e.descripcion}</p>
     `;
-    listEl.appendChild(li);
+    contenedor.appendChild(card);
   });
 }
